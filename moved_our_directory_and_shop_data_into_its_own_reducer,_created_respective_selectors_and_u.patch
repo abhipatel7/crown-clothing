@@ -1,0 +1,230 @@
+Index: src/App.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/App.js b/src/App.js
+--- a/src/App.js	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/App.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -41,7 +41,7 @@
+       <div>
+         <Header />
+         <Switch>
+-          <Route exact path="/shop" component={ShopPage} />
++          <Route path="/shop" component={ShopPage} />
+           <Route exact path="/checkout" component={CheckOutPage} />
+           <Route
+             exact
+Index: src/components/collection-item/collection-item.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/collection-item/collection-item.scss b/src/components/collection-item/collection-item.scss
+--- a/src/components/collection-item/collection-item.scss	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/components/collection-item/collection-item.scss	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -1,5 +1,5 @@
+ .collection-item {
+-  width: 22%;
++  width: 22vw;
+   display: flex;
+   flex-direction: column;
+   height: 350px;
+Index: src/components/collections-overview/collections-overview.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/components/collections-overview/collections-overview.js b/src/components/collections-overview/collections-overview.js
+--- a/src/components/collections-overview/collections-overview.js	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/components/collections-overview/collections-overview.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -3,7 +3,7 @@
+ import { createStructuredSelector } from 'reselect';
+ 
+ import CollectionPreview from '../collection-preview/collection-preview';
+-import { selectCollections } from '../../redux/shop/shopSelector';
++import { selectCollectionsForPreview } from '../../redux/shop/shopSelector';
+ import './collections-overview.scss';
+ 
+ const CollectionsOverview = ({ collections }) => (
+@@ -15,7 +15,7 @@
+ );
+ 
+ const mapStateToProps = createStructuredSelector({
+-  collections: selectCollections,
++  collections: selectCollectionsForPreview,
+ });
+ 
+ export default connect(mapStateToProps)(CollectionsOverview);
+Index: src/pages/collectionpage/collectionpage.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/pages/collectionpage/collectionpage.js b/src/pages/collectionpage/collectionpage.js
+new file mode 100644
+--- /dev/null	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
++++ b/src/pages/collectionpage/collectionpage.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -0,0 +1,26 @@
++import React from 'react';
++import { connect } from 'react-redux';
++import CollectionItem from '../../components/collection-item/collection-item';
++
++import './collectionpage.scss';
++import { selectCollection } from '../../redux/shop/shopSelector';
++
++const CollectionPage = ({ collection }) => {
++  const { title, items } = collection;
++  return (
++    <div className="collection-page">
++      <h2 className="title">{title}</h2>
++      <div className="items">
++        {items.map((item) => (
++          <CollectionItem key={item.id} item={item} />
++        ))}
++      </div>
++    </div>
++  );
++};
++
++const mapStateToProps = (state, ownProps) => ({
++  collection: selectCollection(ownProps.match.params.collectionId)(state),
++});
++
++export default connect(mapStateToProps)(CollectionPage);
+Index: src/pages/collectionpage/collectionpage.scss
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/pages/collectionpage/collectionpage.scss b/src/pages/collectionpage/collectionpage.scss
+new file mode 100644
+--- /dev/null	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
++++ b/src/pages/collectionpage/collectionpage.scss	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -0,0 +1,19 @@
++.collection-page {
++  display: flex;
++  flex-direction: column;
++
++  .title {
++    font-size: 38px;
++    margin: 0 auto 30px;
++  }
++
++  .items {
++    display: grid;
++    grid-template-columns: 1fr 1fr 1fr 1fr;
++    grid-gap: 10px;
++
++    & .collection-item {
++      margin-bottom: 30px;
++    }
++  }
++}
+Index: src/pages/shoppage/shoppage.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/pages/shoppage/shoppage.js b/src/pages/shoppage/shoppage.js
+--- a/src/pages/shoppage/shoppage.js	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/pages/shoppage/shoppage.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -1,9 +1,13 @@
+ import React from 'react';
++import { Route } from 'react-router-dom';
++
+ import CollectionsOverview from '../../components/collections-overview/collections-overview';
++import CollectionPage from '../collectionpage/collectionpage';
+ 
+-const ShopPage = ({ collections }) => (
++const ShopPage = ({ match }) => (
+   <div className="shop-page">
+-    <CollectionsOverview />
++    <Route exact path={match.path} component={CollectionsOverview} />
++    <Route path={`${match.path}/:collectionId`} component={CollectionPage} />
+   </div>
+ );
+ 
+Index: src/redux/shop/shop.data.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/redux/shop/shop.data.js b/src/redux/shop/shop.data.js
+--- a/src/redux/shop/shop.data.js	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/redux/shop/shop.data.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -1,5 +1,5 @@
+-const SHOP_DATA = [
+-  {
++const SHOP_DATA = {
++  hats: {
+     id: 1,
+     title: 'Hats',
+     routeName: 'hats',
+@@ -60,7 +60,7 @@
+       },
+     ],
+   },
+-  {
++  sneakers: {
+     id: 2,
+     title: 'Sneakers',
+     routeName: 'sneakers',
+@@ -115,7 +115,7 @@
+       },
+     ],
+   },
+-  {
++  jackets: {
+     id: 3,
+     title: 'Jackets',
+     routeName: 'jackets',
+@@ -152,7 +152,7 @@
+       },
+     ],
+   },
+-  {
++  womens: {
+     id: 4,
+     title: 'Womens',
+     routeName: 'womens',
+@@ -201,7 +201,7 @@
+       },
+     ],
+   },
+-  {
++  mens: {
+     id: 5,
+     title: 'Mens',
+     routeName: 'mens',
+@@ -244,6 +244,6 @@
+       },
+     ],
+   },
+-];
++};
+ 
+ export default SHOP_DATA;
+Index: src/redux/shop/shopSelector.js
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/src/redux/shop/shopSelector.js b/src/redux/shop/shopSelector.js
+--- a/src/redux/shop/shopSelector.js	(revision 3179ffc3ffb404100d499949f94f2f25d0c6428e)
++++ b/src/redux/shop/shopSelector.js	(revision 340492a6ddbd1d6092644facf1427b5c5940b608)
+@@ -6,3 +6,14 @@
+   [selectShop],
+   (shop) => shop.collections
+ );
++
++export const selectCollectionsForPreview = createSelector(
++  [selectCollections],
++  (collections) => Object.keys(collections).map((key) => collections[key])
++);
++
++export const selectCollection = (collectionUrlParam) =>
++  createSelector(
++    [selectCollections],
++    (collections) => collections[collectionUrlParam]
++  );
